@@ -1,10 +1,9 @@
-import 'dart:async';
-import 'dart:convert';
-import 'dart:io';
-import 'package:camera/camera.dart';
+import 'dart:async'; //비동기 사용하려고 import
+import 'package:camera/camera.dart'; //카메라 package 사용하려고 import
 import 'package:flutter/material.dart';
-import 'package:googleapis/vision/v1.dart' as vision;
-import 'package:googleapis_auth/auth_io.dart' as auth;
+import 'dart:io';
+import 'package:flutter/services.dart';
+import 'package:path_provider/path_provider.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -13,12 +12,13 @@ Future<void> main() async {
   runApp(
     MaterialApp(
       theme: ThemeData(
+        //테마는 기본값
         appBarTheme: const AppBarTheme(
-          color: Color.fromARGB(255, 230, 211, 34),
+          color: Color.fromARGB(255, 230, 211, 34), // AppBar의 배경색 설정
         ),
       ),
       home: CameraScreen(
-        camera: firstCamera,
+        camera: firstCamera, //카메라 여러개 있는 핸드폰 때문에 First라고 지정
       ),
     ),
   );
@@ -27,83 +27,51 @@ Future<void> main() async {
 class CameraScreen extends StatefulWidget {
   const CameraScreen({
     super.key,
-    required this.camera,
+    required this.camera, //필수로 받아와야 하는 카메라 정보 저장 변수
   });
 
-  final CameraDescription camera;
+  final CameraDescription camera; //cameradescription타입 변수 camera 선언
 
   @override
   CameraScreenState createState() => CameraScreenState();
 }
 
 class CameraScreenState extends State<CameraScreen> {
-  late CameraController _controller;
-  late Future<void> _initializeControllerFuture;
+  late CameraController _controller; //카메라 제어를 위한 컨트롤러 선언
+  late Future<void> _initializeControllerFuture; //카메라 초기화
+  File? _imageFile; // 이미지 파일 변수 추가
+
 
   @override
   void initState() {
     super.initState();
     _controller = CameraController(
-      widget.camera,
-      ResolutionPreset.medium,
+      widget.camera, //위젯에서 전달받은 카메라 정보로 컨트롤러 생성
+      ResolutionPreset.medium, //화질 높아지면 로딩 오래 걸릴 수 있다길래 우선 medium으로 설정
     );
     _initializeControllerFuture = _controller.initialize();
+
+    // 이미지 파일 불러오기
+    _loadImage();
+  }
+
+  // 이미지 파일 불러오기 함수
+  void _loadImage() async {
+    final imageFile = await rootBundle.load('assets/speak_clothes_top_icon.png');
+    final tempDir = await getTemporaryDirectory();
+    final tempPath = '${tempDir.path}/speak_clothes_top_icon.png';
+    final bytes = imageFile.buffer.asUint8List();
+    await File(tempPath).writeAsBytes(bytes);
+    setState(() {
+      _imageFile = File(tempPath);
+    });
   }
 
   @override
   void dispose() {
+    //사용 끝나거나 강제 종료 당했을때 해제 안 하면 오류 생긴다고 해서 추가
     _controller.dispose();
     super.dispose();
-  }
-
-  void _processImage(File imageFile) async {
-    // Google Cloud Vision API 인증
-    final credentials = await auth.clientViaServiceAccount(
-      auth.ServiceAccountCredentials.fromJson(
-        File('assets/your_api_key_file.json').readAsStringSync(),
-      ),
-      // 변경된 스코프에 맞게 수정
-      ['https://www.googleapis.com/auth/cloud-platform'],
-    );
-
-    // Vision API 클라이언트 생성
-    final visionApi = vision.VisionApi(credentials);
-
-    // 이미지를 Base64로 인코딩
-    List<int> imageBytes = await imageFile.readAsBytes();
-    String base64Image = base64Encode(imageBytes);
-
-    // Vision API 요청 생성
-    final request = vision.AnnotateImageRequest(
-      image: vision.Image(content: base64Image),
-      features: [vision.Feature(type: 'LABEL_DETECTION')],
-    );
-    final batch = vision.BatchAnnotateImagesRequest(
-      requests: [request],
-    );
-
-    // Vision API 호출하여 응답 받기
-    final response = await visionApi.images.annotate(batch);
-
-    // 응답 결과 처리
-    if (response.responses != null && response.responses!.isNotEmpty) {
-      final labels = response.responses!.first.labelAnnotations;
-      if (labels != null && labels.isNotEmpty) {
-        List<String> detectedLabels =
-        labels.map((label) => label.description!).toList();
-        print('Detected labels: $detectedLabels');
-      }
-    }
-  }
-
-  void _onCaptureButtonPressed() async {
-    try {
-      await _initializeControllerFuture;
-      final image = await _controller.takePicture();
-      _processImage(File(image.path));
-    } catch (e) {
-      print('Error capturing image: $e');
-    }
   }
 
   @override
@@ -114,16 +82,24 @@ class CameraScreenState extends State<CameraScreen> {
         future: _initializeControllerFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
-            return CameraPreview(_controller);
+            if (_imageFile != null) {
+              return Stack(
+                children: [
+                  CameraPreview(_controller),
+                  Positioned.fill(child: Image.file(_imageFile!)),
+                ],
+              );
+            } else {
+              return CameraPreview(_controller);
+            }
           } else {
             return const Center(child: CircularProgressIndicator());
           }
         },
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _onCaptureButtonPressed,
-        child: Icon(Icons.camera_alt),
-      ),
+      // ...
     );
   }
+
+// ...
 }
