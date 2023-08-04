@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "primal-outrider-394810",
+  "private_key_id": "3bf98d66267d52017b2c33f19ded860904be51d2",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQCd3BMs3OWDyIKz\nKruLMV1N1mQKTap4Lyp4H0QCyyalYMWuhDeCveqNEc7mu1ymdYmBT/bMSVsjqASQ\nycOIFajKFs5nQ6banX089aadyLShODeZEqnyHIKH7K0D8nyPVSrUCohuzJtxMCpC\nrCdeYOv4B0EBHORHpmv7cy2cCrfezP8RXahde8EqK92Ah2NZcgJBa1enZs3/jyzq\nthGQjSKNcI3u0sToGekJQG9MalOYvBXKBtyRheMz/LW1UawvUSX694XGbTmv5S7P\n6lO5Ufr9AN9gO/JVENbnD7v88cM8oGMgbL5BPvUDNlayW7bmAkfL7V6THNfSGtZG\nVC/sazvZAgMBAAECggEABXnoemJxXdh7XD7LwcDlJTmeP9NA6ilstj0TbWthvFP2\nl57DlDgFZn5rKIrwZF/odMFy5NRYooyGGAW/0D08HUKcR23L4IKdIRu+e3PGfF9I\nYnmIxrrhdliqCdyEIK7KLQ/uerWDYPJUTPrO5NHE7dZGlYTMkIW/8jmlJ+ghR8vT\nuWqzPnOh3xf2M65xXlK/Hurbs8YQ5zzBQsLdWxMWtK0T4PSdwopMWu5dqV4Wpq0D\nD3adjgcE20Ixw84BwXNlb4I5cNJSXE38gYWgERLqToiqd7hkc/Dp95V8u736tVFj\nAJghZwsnEeo4AbGNGZ2A9DzZXRw125i1M+OwlKMLVwKBgQDfF/urYwEgZ9ql/s33\n4ORyrcKOGbJb3qSmR99irEkjY6gpOJw8TrFwIzgrBxcYrB4OSus16pVN83sc9rfB\nYOlcZ+6Qx4thb6KpFNpst1fpgdPc+PQPmX/NZ60PedFQPumU3sMt/wu2JFL5w8GJ\nFncDArgLFMmavi0RhVZGBhpXAwKBgQC1JNsEVjUA86fUoFXuOlPb2JLt2kzVEkKU\npzdIQxUfczk20qVAzEwqKgTSZ3i5dXdhWv/WGP87+96oylZn2vGDGKzawRcyixnW\nk+sSVkLg9J6uPxkGG75QNjMQXTZbFgZ93GsgUBmsFjMJndw+O1k1nSWbVoMZESmj\nlOueiEeM8wKBgDIOnpChIVKVGvFeD/cLhhbZOCtMRsHoXgdVXyEzySFgrg25vwyl\nF5kyvdqht6P4krHgS5CId0HLXRdtoGOKjDIIu/XOYE7Xjqbjn/L+3IHveIs/bPvH\nFG8RUTqEuduIkj6uERtT+9u9oMScEOPin4eUZ5lM68OF4nTo9ye1HNnjAoGAFh4T\n5+mmuyEFAv84vse8aYF+HzCiZPm/y2rHYzldoONuvvTlXI4VVqiewhoEMZDYLLjx\nt/CBaY+NVkquVivzhTBEGsmszW0SkJKrByglLlZv8ZKeuZI1oJGdlofrFSARVtjM\n87sUB2EGhkwSEj8o21T+vILJqwvfa6vJQSgepGUCgYBryGQWDBPtEk2ueMXPZKkh\naQXMXtvuJ4lqOlQOfJYIpCxXzYVFXA0m4QF0nkvodaWTdDLWfopni4smy/M9fTLc\n+MECgXP9DwG6ixnh74gYM+fLjBpm0YgmnpcczFumcAIIaAvg6r1CI351mVhjiFm/\nEq6cdCJjIr4tYWLZyxRNWA==\n-----END PRIVATE KEY-----\n",
+  "client_email": "speak-api@primal-outrider-394810.iam.gserviceaccount.com",
+  "client_id": "101137270387272503296",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/speak-api%40primal-outrider-394810.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}

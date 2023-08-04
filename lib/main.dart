@@ -1,70 +1,129 @@
+import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
+import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:googleapis/vision/v1.dart' as vision;
+import 'package:googleapis_auth/auth_io.dart' as auth;
 
-void main() {
-  runApp(const MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  // This widget is the root of your application.
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final cameras = await availableCameras();
+  final firstCamera = cameras.first;
+  runApp(
+    MaterialApp(
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
+        appBarTheme: const AppBarTheme(
+          color: Color.fromARGB(255, 230, 211, 34),
+        ),
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
-    );
-  }
+      home: CameraScreen(
+        camera: firstCamera,
+      ),
+    ),
+  );
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
+class CameraScreen extends StatefulWidget {
+  const CameraScreen({
+    super.key,
+    required this.camera,
+  });
 
-  final String title;
+  final CameraDescription camera;
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  CameraScreenState createState() => CameraScreenState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+class CameraScreenState extends State<CameraScreen> {
+  late CameraController _controller;
+  late Future<void> _initializeControllerFuture;
 
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
+  @override
+  void initState() {
+    super.initState();
+    _controller = CameraController(
+      widget.camera,
+      ResolutionPreset.medium,
+    );
+    _initializeControllerFuture = _controller.initialize();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _processImage(File imageFile) async {
+    // Google Cloud Vision API 인증
+    final credentials = await auth.clientViaServiceAccount(
+      auth.ServiceAccountCredentials.fromJson(
+        File('assets/your_api_key_file.json').readAsStringSync(),
+      ),
+      // 변경된 스코프에 맞게 수정
+      ['https://www.googleapis.com/auth/cloud-platform'],
+    );
+
+    // Vision API 클라이언트 생성
+    final visionApi = vision.VisionApi(credentials);
+
+    // 이미지를 Base64로 인코딩
+    List<int> imageBytes = await imageFile.readAsBytes();
+    String base64Image = base64Encode(imageBytes);
+
+    // Vision API 요청 생성
+    final request = vision.AnnotateImageRequest(
+      image: vision.Image(content: base64Image),
+      features: [vision.Feature(type: 'LABEL_DETECTION')],
+    );
+    final batch = vision.BatchAnnotateImagesRequest(
+      requests: [request],
+    );
+
+    // Vision API 호출하여 응답 받기
+    final response = await visionApi.images.annotate(batch);
+
+    // 응답 결과 처리
+    if (response.responses != null && response.responses!.isNotEmpty) {
+      final labels = response.responses!.first.labelAnnotations;
+      if (labels != null && labels.isNotEmpty) {
+        List<String> detectedLabels =
+        labels.map((label) => label.description!).toList();
+        print('Detected labels: $detectedLabels');
+      }
+    }
+  }
+
+  void _onCaptureButtonPressed() async {
+    try {
+      await _initializeControllerFuture;
+      final image = await _controller.takePicture();
+      _processImage(File(image.path));
+    } catch (e) {
+      print('Error capturing image: $e');
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text(widget.title),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-          ],
-        ),
+      appBar: AppBar(title: const Text('Camera')),
+      body: FutureBuilder<void>(
+        future: _initializeControllerFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.done) {
+            return CameraPreview(_controller);
+          } else {
+            return const Center(child: CircularProgressIndicator());
+          }
+        },
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+        onPressed: _onCaptureButtonPressed,
+        child: Icon(Icons.camera_alt),
+      ),
     );
   }
 }

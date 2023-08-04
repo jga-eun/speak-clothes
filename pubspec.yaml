@@ -30,6 +30,10 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  camera: ^0.10.0
+  googleapis: 11.3.0
+  googleapis_auth: 1.4.1
+  path_provider: ^2.0.5
 
 
   # The following adds the Cupertino Icons font to your application.
@@ -52,6 +56,8 @@ dev_dependencies:
 
 # The following section is specific to Flutter packages.
 flutter:
+  assets:
+    - assets/speak_clothes_top_icon.png
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
