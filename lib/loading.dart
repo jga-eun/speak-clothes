@@ -21,6 +21,7 @@ class LoadingMenu extends StatefulWidget {
   const LoadingMenu({Key? key}) : super(key: key);
 
   @override
+  // ignore: library_private_types_in_public_api
   _LoadingMenuState createState() {
     return _LoadingMenuState();
   }
@@ -52,7 +53,7 @@ class _LoadingMenuState extends State<LoadingMenu> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color.fromARGB(255, 248, 225, 50),
+      backgroundColor: const Color.fromARGB(255, 248, 225, 50),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -70,7 +71,7 @@ class _LoadingMenuState extends State<LoadingMenu> {
                       value: _progress,
                       strokeWidth: 7,
                       color: Colors.white,
-                      backgroundColor: Color.fromARGB(255, 226, 208, 49),
+                      backgroundColor: const Color.fromARGB(255, 226, 208, 49),
                     ),
                   ),
                   Image.network(
