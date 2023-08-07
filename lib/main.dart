@@ -46,6 +46,7 @@ class CameraScreenState extends State<CameraScreen> {
   late Future<void> _initializeControllerFuture; //카메라 초기화
   File? _imageFile; // 이미지 파일 변수 추가
   late FlutterTts flutterTts; // TTS 라이브러리 인스턴스
+  String _analysisResult = ''; // 이미지 분석 결과를 보여줄 텍스트 상태 변수 추가
 
 
   @override
@@ -126,6 +127,10 @@ class CameraScreenState extends State<CameraScreen> {
         print('Detected label: $label');
         await _speakText('Detected label: $label'); // _speakText 함수 호출
 
+        setState(() {
+          _analysisResult = 'Detected label: $label'; // 이미지 분석 결과 업데이트
+        });
+
         // Text-to-Speech로 음성 재생
         await flutterTts.setLanguage('en-US');
         await flutterTts.setSpeechRate(0.8);
@@ -174,6 +179,15 @@ class CameraScreenState extends State<CameraScreen> {
                 children: [
                   CameraPreview(_controller),
                   Positioned.fill(child: Image.file(_imageFile!)),
+                  Positioned(
+                    bottom: 16, // 텍스트를 아래쪽으로 위치시킴
+                    left: 16,
+                    right: 16,
+                    child: Text(
+                      _analysisResult, // 이미지 분석 결과를 표시
+                      style: TextStyle(fontSize: 16, color: Colors.black),
+                    ),
+                  ),
                 ],
               );
             } else {
