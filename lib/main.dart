@@ -141,27 +141,9 @@ class CameraScreenState extends State<CameraScreen> {
       }
     } catch (e) {
       print("Error taking picture: $e");
-    }
-
-
-    final response = await visionApi.images.annotate(request);
-    if (response.responses != null && response.responses!.isNotEmpty) {
-      final labelAnnotations = response.responses!.first.labelAnnotations;
-      if (labelAnnotations != null && labelAnnotations.isNotEmpty) {
-        final label = labelAnnotations.first.description;
-        print('Detected label: $label');
-        await _speakText('Detected label: $label'); // _speakText 함수 호출
-
-        setState(() {
-          _analysisResult = 'Detected label: $label'; // 이미지 분석 결과 업데이트
-        });
-
-        // Text-to-Speech로 음성 재생
-        await flutterTts.setLanguage('en-US');
-        await flutterTts.setSpeechRate(0.8);
-        await flutterTts.setVolume(1.0);
-        await flutterTts.speak('Detected label: $label');
-      }
+      setState(() {
+        _analysisResult = 'Error processing image';
+      });
     }
   }
 
