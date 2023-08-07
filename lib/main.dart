@@ -119,6 +119,31 @@ class CameraScreenState extends State<CameraScreen> {
       ],
     });
 
+    // 새로운 이미지 촬영 요청
+    try {
+      final response = await visionApi.images.annotate(request);
+      if (response.responses != null && response.responses!.isNotEmpty) {
+        final labelAnnotations = response.responses!.first.labelAnnotations;
+        if (labelAnnotations != null && labelAnnotations.isNotEmpty) {
+          final label = labelAnnotations.first.description;
+          print('Detected label: $label');
+          await _speakText('Detected label: $label');
+
+          setState(() {
+            _analysisResult = 'Detected label: $label';
+          });
+
+          await flutterTts.setLanguage('en-US');
+          await flutterTts.setSpeechRate(0.8);
+          await flutterTts.setVolume(1.0);
+          await flutterTts.speak('Detected label: $label');
+        }
+      }
+    } catch (e) {
+      print("Error taking picture: $e");
+    }
+
+
     final response = await visionApi.images.annotate(request);
     if (response.responses != null && response.responses!.isNotEmpty) {
       final labelAnnotations = response.responses!.first.labelAnnotations;
