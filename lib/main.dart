@@ -192,7 +192,7 @@ class CameraScreenState extends State<CameraScreen> {
 
     final synthesisInput = tts.SynthesisInput(text: text);
     final voiceSelection =
-        tts.VoiceSelectionParams(languageCode: 'en-US', ssmlGender: 'FEMALE');
+        tts.VoiceSelectionParams(languageCode: 'en-US', ssmlGender: 'MALE');
     final audioConfig = tts.AudioConfig(audioEncoding: 'MP3');
 
     final ttsRequest = tts.SynthesizeSpeechRequest(
