@@ -7,7 +7,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:camera/camera.dart';  // camera 패키지 import 추가
+import 'package:camera/camera.dart'; // camera 패키지 import 추가
 
 import 'package:speak_clothes/main.dart';
 
@@ -17,7 +17,11 @@ void main() {
     WidgetsFlutterBinding.ensureInitialized();
     final cameras = await availableCameras();
     final firstCamera = cameras.first;
-    await tester.pumpWidget(CameraScreen(camera: firstCamera));
+    await tester.pumpWidget(CameraScreen(
+      camera: firstCamera,
+      visionApiKey: '',
+      ttsApiKey: '',
+    ));
 
     // Verify that our counter starts at 0.
     expect(find.text('0'), findsOneWidget);
