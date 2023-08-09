@@ -16,8 +16,8 @@ Future<void> main() async {
 
   // .env 파일에서 API 키 로드
   await dotenv.load(fileName: ".env");
-  final visionApiKey = dotenv.env['SPEAK_CLOTHES_VISION_API'];
-  final ttsApiKey = dotenv.env['SPEAK_CLOTHES_TTS_API'];
+  final visionApiKey = dotenv.env['SPEAK_CLOTHES_API'];
+  final ttsApiKey = dotenv.env['SPEAK_CLOTHES_API'];
 
   final cameras = await availableCameras();
   final firstCamera = cameras.first;
