@@ -24,7 +24,10 @@ linter:
   # producing the lint.
   rules:
     - library_private_types_in_public_api
+<<<<<<< HEAD
 
+=======
+>>>>>>> d21c6430e2ef0d257d908a9fdb4120f99d0987e9
     # avoid_print: false  # Uncomment to disable the `avoid_print` rule
     # prefer_single_quotes: true  # Uncomment to enable the `prefer_single_quotes` rule
 
