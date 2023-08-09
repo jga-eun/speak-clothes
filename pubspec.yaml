@@ -36,6 +36,9 @@ dependencies:
   path_provider: ^2.1.0
   flutter_tts: 3.7.0
   flutter_dotenv: ^5.1.0
+  # Firebase 관련 패키지 추가
+  firebase_core: ^1.10.6
+  cloud_firestore: ^2.5.4
 
 
   # The following adds the Cupertino Icons font to your application.
