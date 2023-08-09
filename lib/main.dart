@@ -142,7 +142,7 @@ class CameraScreenState extends State<CameraScreen> {
           });
 
           await flutterTts.setLanguage('en-US');
-          await flutterTts.setSpeechRate(0.8);
+          await flutterTts.setSpeechRate(0.4);
           await flutterTts.setVolume(1.0);
           await flutterTts.speak('Detected label: $label');
 
