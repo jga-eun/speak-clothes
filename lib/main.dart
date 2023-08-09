@@ -9,11 +9,13 @@ import 'package:googleapis_auth/googleapis_auth.dart' as auth;
 import 'dart:convert';
 import 'package:googleapis/texttospeech/v1.dart' as tts; // Text-to-Speech API
 import 'package:flutter_tts/flutter_tts.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final cameras = await availableCameras();
   final firstCamera = cameras.first;
+  await dotenv.load(fileName: ".env");
   runApp(
     MaterialApp(
       theme: ThemeData(
@@ -97,10 +99,10 @@ class CameraScreenState extends State<CameraScreen> {
   }
 
   Future<void> _processImage(XFile picture) async {
-    final apiKey = Platform.environment['SPEAK_CLOTHES_VISION_API'];
+    final apiKeyVision = dotenv.env['SPEAK_CLOTHES_VISION_API'];
 
-    if (apiKey == null) {
-      print('API key not found in environment variables.');
+    if (apiKeyVision == null) {
+      print('Vision API key not found in environment variables.');
       return;
     }
 
@@ -148,14 +150,14 @@ class CameraScreenState extends State<CameraScreen> {
   }
 
   Future<void> _speakText(String text) async {
-    final apiKey = Platform.environment['SPEAK_CLOTHES_TTS_API'];
+    final apiKeyTTS = dotenv.env['SPEAK_CLOTHES_TTS_API'];
 
-    if (apiKey == null) {
+    if (apiKeyTTS == null) {
       print('Text-to-Speech API key not found in environment variables.');
       return;
     }
 
-    final client = await auth.clientViaApiKey(apiKey);
+    final client = await auth.clientViaApiKey(apiKeyTTS);
     final ttsApi = tts.TexttospeechApi(client);
 
     final synthesisInput = tts.SynthesisInput(text: text);
@@ -170,7 +172,7 @@ class CameraScreenState extends State<CameraScreen> {
 
     final ttsResponse = await ttsApi.text.synthesize(ttsRequest);
 
-    // TODO: ttsResponse에서 음성 파일을 재생하거나 저장할 수 있습니다.
+    // TODO: ttsResponse에서 음성 파일을 재생하거나 저장할 수 있음.
   }
 
   @override
