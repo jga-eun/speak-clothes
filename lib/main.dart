@@ -142,7 +142,7 @@ class CameraScreenState extends State<CameraScreen> {
           });
 
           await flutterTts.setLanguage('en-US');
-          await flutterTts.setSpeechRate(0.8);
+          await flutterTts.setSpeechRate(0.4);
           await flutterTts.setVolume(1.0);
           await flutterTts.speak('Detected label: $label');
 
@@ -192,7 +192,7 @@ class CameraScreenState extends State<CameraScreen> {
 
     final synthesisInput = tts.SynthesisInput(text: text);
     final voiceSelection =
-        tts.VoiceSelectionParams(languageCode: 'en-US', ssmlGender: 'FEMALE');
+        tts.VoiceSelectionParams(languageCode: 'en-US', ssmlGender: 'Female');
     final audioConfig = tts.AudioConfig(audioEncoding: 'MP3');
 
     final ttsRequest = tts.SynthesizeSpeechRequest(
