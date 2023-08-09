@@ -10,9 +10,11 @@ import 'dart:convert';
 import 'package:googleapis/texttospeech/v1.dart' as tts;
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:firebase_core/firebase_core.dart'; // Firebase 초기화를 위한 import
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(); // Firebase 초기화
 
   // .env 파일에서 API 키 로드
   await dotenv.load(fileName: ".env");
