@@ -1,9 +1,7 @@
 import 'dart:async';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
-import 'dart:io';
 import 'package:flutter/services.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:googleapis/vision/v1.dart' as vision;
 import 'package:googleapis_auth/googleapis_auth.dart' as auth;
 import 'dart:convert';
@@ -14,7 +12,6 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // .env 파일에서 API 키 로드
   await dotenv.load(fileName: ".env");
   final visionApiKey = dotenv.env['SPEAK_CLOTHES_API'];
   final ttsApiKey = dotenv.env['SPEAK_CLOTHES_API'];
@@ -39,11 +36,11 @@ Future<void> main() async {
 
 class CameraScreen extends StatefulWidget {
   const CameraScreen({
-    super.key,
+    Key? key,
     required this.camera,
     required this.visionApiKey,
     required this.ttsApiKey,
-  });
+  }) : super(key: key);
 
   final CameraDescription camera;
   final String? visionApiKey;
@@ -56,9 +53,9 @@ class CameraScreen extends StatefulWidget {
 class CameraScreenState extends State<CameraScreen> {
   late CameraController _controller;
   late Future<void> _initializeControllerFuture;
-  File? _imageFile;
   late FlutterTts flutterTts;
   String _analysisResult = '';
+  bool _isDetecting = false;
 
   @override
   void initState() {
@@ -68,19 +65,10 @@ class CameraScreenState extends State<CameraScreen> {
       ResolutionPreset.medium,
     );
     _initializeControllerFuture = _controller.initialize();
-    _loadImage();
     flutterTts = FlutterTts();
-  }
 
-  void _loadImage() async {
-    final imageFile =
-        await rootBundle.load('assets/speak_clothes_top_icon.png');
-    final tempDir = await getTemporaryDirectory();
-    final tempPath = '${tempDir.path}/speak_clothes_top_icon.png';
-    final bytes = imageFile.buffer.asUint8List();
-    await File(tempPath).writeAsBytes(bytes);
-    setState(() {
-      _imageFile = File(tempPath);
+    Timer.periodic(Duration(seconds: 7), (_) {
+      _takePictureAndProcess();
     });
   }
 
@@ -91,15 +79,24 @@ class CameraScreenState extends State<CameraScreen> {
     super.dispose();
   }
 
-  Future<void> _takePicture() async {
-    if (!_controller.value.isInitialized) {
+  Future<void> _takePictureAndProcess() async {
+    if (!_controller.value.isInitialized || _isDetecting) {
       return;
     }
+
+    setState(() {
+      _isDetecting = true;
+    });
+
     try {
       final XFile picture = await _controller.takePicture();
       await _processImage(picture);
     } catch (e) {
       print("Error taking picture: $e");
+    } finally {
+      setState(() {
+        _isDetecting = false;
+      });
     }
   }
 
@@ -145,30 +142,6 @@ class CameraScreenState extends State<CameraScreen> {
           await flutterTts.setSpeechRate(0.4);
           await flutterTts.setVolume(1.0);
           await flutterTts.speak('Detected label: $label');
-
-          double screenWidth = MediaQuery.of(context).size.width;
-          double objectPositionX = screenWidth / 2;
-          double distanceThreshold = 20;
-          bool imageMatched = false;
-
-          while (!imageMatched) {
-            String instructionText;
-            if ((objectPositionX - screenWidth / 2).abs() < distanceThreshold) {
-              imageMatched = true;
-              await _takePicture();
-              instructionText = "촬영을 시작하겠습니다.";
-            } else if (objectPositionX > screenWidth / 2) {
-              await _speakText("왼쪽으로 이동하세요.");
-              instructionText = "왼쪽으로 이동하세요.";
-            } else {
-              await _speakText("오른쪽으로 이동하세요.");
-              instructionText = "오른쪽으로 이동하세요.";
-            }
-
-            setState(() {
-              _analysisResult = instructionText;
-            });
-          }
         }
       }
     } catch (e) {
@@ -209,40 +182,31 @@ class CameraScreenState extends State<CameraScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Camera')),
+      appBar: AppBar(title: const Text('Speak Clothes')),
       body: FutureBuilder<void>(
         future: _initializeControllerFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
-            if (_imageFile != null) {
-              return Stack(
-                children: [
-                  CameraPreview(_controller),
-                  Positioned.fill(child: Image.file(_imageFile!)),
-                  Positioned(
-                    bottom: 16,
-                    left: 16,
-                    right: 16,
-                    child: Text(
-                      _analysisResult,
-                      style: TextStyle(
-                          fontSize: 16,
-                          color: const Color.fromARGB(255, 150, 5, 5)),
-                    ),
+            return Stack(
+              children: [
+                CameraPreview(_controller),
+                Positioned(
+                  bottom: 16,
+                  left: 16,
+                  right: 16,
+                  child: Text(
+                    _isDetecting ? 'Detecting...' : _analysisResult,
+                    style: TextStyle(
+                        fontSize: 16,
+                        color: const Color.fromARGB(255, 150, 5, 5)),
                   ),
-                ],
-              );
-            } else {
-              return CameraPreview(_controller);
-            }
+                ),
+              ],
+            );
           } else {
             return const Center(child: CircularProgressIndicator());
           }
         },
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _takePicture,
-        child: Icon(Icons.camera),
       ),
     );
   }
