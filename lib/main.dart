@@ -10,7 +10,6 @@ import 'dart:convert';
 import 'package:googleapis/texttospeech/v1.dart' as tts;
 import 'package:flutter_tts/flutter_tts.dart';
 
-
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
