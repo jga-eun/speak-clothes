@@ -9,6 +9,7 @@ import 'package:googleapis_auth/googleapis_auth.dart' as auth;
 import 'dart:convert';
 import 'package:googleapis/texttospeech/v1.dart' as tts;
 import 'package:flutter_tts/flutter_tts.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
