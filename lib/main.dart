@@ -10,7 +10,6 @@ import 'dart:convert';
 import 'package:googleapis/texttospeech/v1.dart' as tts;
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:google_translator/google_translator.dart'as google_translator;
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -75,7 +74,7 @@ class CameraScreenState extends State<CameraScreen> {
 
   void _loadImage() async {
     final imageFile =
-        await rootBundle.load('assets/speak_clothes_top_icon.png');
+    await rootBundle.load('assets/speak_clothes_top_icon.png');
     final tempDir = await getTemporaryDirectory();
     final tempPath = '${tempDir.path}/speak_clothes_top_icon.png';
     final bytes = imageFile.buffer.asUint8List();
@@ -136,18 +135,16 @@ class CameraScreenState extends State<CameraScreen> {
         if (labelAnnotations != null && labelAnnotations.isNotEmpty) {
           final label = labelAnnotations.first.description;
           print('Detected label: $label');
-
-          // 번역 API 통한 라벨 한국어 변환 (결과를 반환하지 않고 바로 출력)
-          await _translateLabelToKoreanAndPrint(label);
+          await _speakText('Detected label: $label');
 
           setState(() {
             _analysisResult = 'Detected label: $label';
           });
 
-          await flutterTts.setLanguage('ko-KR');
+          await flutterTts.setLanguage('en-US');
           await flutterTts.setSpeechRate(0.4);
           await flutterTts.setVolume(1.0);
-          await flutterTts.speak('감지된 라벨: $label');
+          await flutterTts.speak('Detected label: $label');
 
           double screenWidth = MediaQuery.of(context).size.width;
           double objectPositionX = screenWidth / 2;
@@ -177,28 +174,8 @@ class CameraScreenState extends State<CameraScreen> {
     } catch (e) {
       print("Error taking picture: $e");
       setState(() {
-        _analysisResult = '이미지 처리 중 오류 발생';
+        _analysisResult = 'Error processing image';
       });
-    }
-  }
-
-  Future<void> _translateLabelToKoreanAndPrint(String label) async {
-    final translateApiKey = dotenv.env['SPEAK_CLOTHES_API'];
-
-    if (translateApiKey == null) {
-      print('Translation API key not found in environment variables.');
-      return;
-    }
-    final client = auth.clientViaApiKey(translateApiKey);
-    final translateApi = google_translator.GoogleTranslator();
-
-    try {
-      final translatedText = await translateApi.translate(label,
-          source: 'en',  // 영어 언어 코드
-          target: 'ko');   // 한국어 언어 코드
-      print('Translated label: $translatedText');
-    } catch (e) {
-      print("Error translating label: $e");
     }
   }
 
@@ -215,7 +192,7 @@ class CameraScreenState extends State<CameraScreen> {
 
     final synthesisInput = tts.SynthesisInput(text: text);
     final voiceSelection =
-        tts.VoiceSelectionParams(languageCode: 'en-US', ssmlGender: 'Female');
+    tts.VoiceSelectionParams(languageCode: 'en-US', ssmlGender: 'Female');
     final audioConfig = tts.AudioConfig(audioEncoding: 'MP3');
 
     final ttsRequest = tts.SynthesizeSpeechRequest(
