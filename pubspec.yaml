@@ -42,8 +42,7 @@ dependencies:
   flutter_launcher_icons: ^0.13.1
 
 flutter_icons:
-  android: "true"
-  ios: "true"
+  android: "ic_logo"
   image_path: "assets/speak_clothes_logo_icon.png"
 
   # The following adds the Cupertino Icons font to your application.
