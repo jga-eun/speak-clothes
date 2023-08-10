@@ -46,9 +46,9 @@ app.*.map.json
 
 #.env file
 .env
+<<<<<<< HEAD
 =======
 /android/app/releasea
 
 # .env file
 .env
->>>>>>> 7780cb7362a8353294f44032d8d1b6da5a8dd911
