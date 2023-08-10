@@ -88,7 +88,8 @@ class CameraScreenState extends State<CameraScreen> {
       return text; // Return the original text if API key is not available
     }
 
-    final url = Uri.parse('https://translation.googleapis.com/language/translate/v2');
+    final url =
+        Uri.parse('https://translation.googleapis.com/language/translate/v2');
     final response = await http.post(url, body: {
       'key': apiKey,
       'source': 'en',
@@ -97,7 +98,8 @@ class CameraScreenState extends State<CameraScreen> {
     });
 
     if (response.statusCode == 200) {
-      final translatedText = json.decode(response.body)['data']['translations'][0]['translatedText'];
+      final translatedText = json.decode(response.body)['data']['translations']
+          [0]['translatedText'];
       return translatedText;
     } else {
       print('텍스트 번역 중 오류 발생: ${response.body}');
@@ -159,7 +161,8 @@ class CameraScreenState extends State<CameraScreen> {
           final label = labelAnnotations.first.description;
           print('이미지 분석 결과: $label');
 
-          final translatedLabel = await _translateText(label!); // Translate the label
+          final translatedLabel =
+              await _translateText(label!); // Translate the label
           await _speakText('이미지 분석 결과: $translatedLabel');
 
           setState(() {
@@ -167,7 +170,7 @@ class CameraScreenState extends State<CameraScreen> {
           });
 
           await flutterTts.setLanguage('en-US');
-          await flutterTts.setSpeechRate(0.4);
+          await flutterTts.setSpeechRate(0.3);
           await flutterTts.setVolume(1.0);
           await flutterTts.speak('이미지 분석 결과: $translatedLabel');
         }
@@ -193,7 +196,7 @@ class CameraScreenState extends State<CameraScreen> {
 
     final synthesisInput = tts.SynthesisInput(text: text);
     final voiceSelection =
-    tts.VoiceSelectionParams(languageCode: 'en-US', ssmlGender: 'Female');
+        tts.VoiceSelectionParams(languageCode: 'en-US', ssmlGender: 'Female');
     final audioConfig = tts.AudioConfig(audioEncoding: 'MP3');
 
     final ttsRequest = tts.SynthesizeSpeechRequest(
