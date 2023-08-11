@@ -210,7 +210,25 @@ class CameraScreenState extends State<CameraScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Speak Clothes')),
+      appBar: AppBar(
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Image.asset(
+              'assets/speak_clothes_logo.png', // 로고 이미지 파일 경로
+              fit: BoxFit.contain, // 이미지 크기 조절 옵션
+              height: 32, // 이미지 높이
+            ),
+            SizedBox(width: 8), // 로고와 텍스트 사이 간격 조절
+            Text(
+              'Speak Clothes', // 앱 이름
+              style: TextStyle(
+                fontSize: 18, // 글씨 크기 조절
+              ),
+            ),
+          ],
+        ),
+      ),
       body: FutureBuilder<void>(
         future: _initializeControllerFuture,
         builder: (context, snapshot) {
