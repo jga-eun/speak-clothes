@@ -9,6 +9,7 @@ import 'package:googleapis/texttospeech/v1.dart' as tts;
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
+import 'package:remove_background/remove_background.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -89,7 +90,7 @@ class CameraScreenState extends State<CameraScreen> {
     }
 
     final url =
-        Uri.parse('https://translation.googleapis.com/language/translate/v2');
+    Uri.parse('https://translation.googleapis.com/language/translate/v2');
     final response = await http.post(url, body: {
       'key': apiKey,
       'source': 'en',
@@ -99,7 +100,7 @@ class CameraScreenState extends State<CameraScreen> {
 
     if (response.statusCode == 200) {
       final translatedText = json.decode(response.body)['data']['translations']
-          [0]['translatedText'];
+      [0]['translatedText'];
       return translatedText;
     } else {
       print('텍스트 번역 중 오류 발생: ${response.body}');
@@ -118,6 +119,15 @@ class CameraScreenState extends State<CameraScreen> {
 
     try {
       final XFile picture = await _controller.takePicture();
+      final imageBytes = await picture.readAsBytes();
+
+      // 이미지의 배경을 제거하고 배경 제거된 이미지를 얻습니다.
+      final processedImageBytes = await cutImage(image: Uint8List.fromList(imageBytes));
+
+      // 배경 제거된 이미지를 화면에 표시합니다.
+      setState(() {
+        _processedImage = Image.memory(Uint8List.fromList(processedImageBytes));
+      });
       await _processImage(picture);
     } catch (e) {
       print("Error taking picture: $e");
@@ -162,7 +172,7 @@ class CameraScreenState extends State<CameraScreen> {
           print('이미지 분석 결과: $label');
 
           final translatedLabel =
-              await _translateText(label!); // Translate the label
+          await _translateText(label!); // Translate the label
           await _speakText('이미지 분석 결과: $translatedLabel');
 
           setState(() {
@@ -196,7 +206,7 @@ class CameraScreenState extends State<CameraScreen> {
 
     final synthesisInput = tts.SynthesisInput(text: text);
     final voiceSelection =
-        tts.VoiceSelectionParams(languageCode: 'en-US', ssmlGender: 'Female');
+    tts.VoiceSelectionParams(languageCode: 'en-US', ssmlGender: 'Female');
     final audioConfig = tts.AudioConfig(audioEncoding: 'MP3');
 
     final ttsRequest = tts.SynthesizeSpeechRequest(
@@ -213,25 +223,7 @@ class CameraScreenState extends State<CameraScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Image.asset(
-              'assets/speak_clothes_logo.png', // 로고 이미지 파일 경로
-              fit: BoxFit.contain, // 이미지 크기 조절 옵션
-              height: 32, // 이미지 높이
-            ),
-            SizedBox(width: 8), // 로고와 텍스트 사이 간격 조절
-            Text(
-              'Speak Clothes', // 앱 이름
-              style: TextStyle(
-                fontSize: 18, // 글씨 크기 조절
-              ),
-            ),
-          ],
-        ),
-      ),
+      appBar: AppBar(title: const Text('Speak Clothes')),
       body: FutureBuilder<void>(
         future: _initializeControllerFuture,
         builder: (context, snapshot) {
