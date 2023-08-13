@@ -44,12 +44,6 @@ app.*.map.json
 <<<<<<< HEAD
 /android/app/release
 
-#.env file
-.env
-<<<<<<< HEAD
-=======
-/android/app/releasea
-
 # .env file
 .env
 
@@ -70,3 +64,4 @@ googleService-Info.plist
 
 #firebase_options.dart
 firebase_options.dart
+
