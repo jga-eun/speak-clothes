@@ -53,4 +53,20 @@ app.*.map.json
 # .env file
 .env
 
-#
+#google-services.json
+google-services.json
+
+#firebase_app_id_file.json
+firebase_app_id_file.json
+
+#nuget.exe
+nuget.exe
+
+#your_api_key_file.json
+your_api_key_file
+
+#googleService-info.plist
+googleService-Info.plist
+
+#firebase_options.dart
+firebase_options.dart
