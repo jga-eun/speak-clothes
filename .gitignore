@@ -44,12 +44,6 @@ app.*.map.json
 <<<<<<< HEAD
 /android/app/release
 
-#.env file
-.env
-<<<<<<< HEAD
-=======
-/android/app/releasea
-
 # .env file
 .env
 
@@ -58,9 +52,6 @@ google-services.json
 
 #firebase_app_id_file.json
 firebase_app_id_file.json
-
-#firebase_options.dart
-firebase_app_id_file.dart
 
 #nuget.exe
 nuget.exe
