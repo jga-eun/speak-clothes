@@ -9,7 +9,6 @@ import 'package:googleapis/texttospeech/v1.dart' as tts;
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
-import 'package:remove_background/remove_background.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -119,15 +118,6 @@ class CameraScreenState extends State<CameraScreen> {
 
     try {
       final XFile picture = await _controller.takePicture();
-      final imageBytes = await picture.readAsBytes();
-
-      // 이미지의 배경을 제거하고 배경 제거된 이미지를 얻습니다.
-      final processedImageBytes = await cutImage(image: Uint8List.fromList(imageBytes));
-
-      // 배경 제거된 이미지를 화면에 표시합니다.
-      setState(() {
-        _processedImage = Image.memory(Uint8List.fromList(processedImageBytes));
-      });
       await _processImage(picture);
     } catch (e) {
       print("Error taking picture: $e");

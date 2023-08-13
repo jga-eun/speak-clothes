@@ -39,8 +39,7 @@ dependencies:
   google_translator: ^1.0.0
   google_cloud_translation: ^0.0.3
   http: ^0.13.0
-  remove_background: ^0.0.1
-  image_gallery_saver: ^2.0.3
+  flutter_launcher_icons: ^0.13.1
 
 flutter_icons:
   android: "ic_logo"
@@ -69,7 +68,6 @@ flutter:
   assets:
     - assets/speak_clothes_top_icon.png
     - .env
-    - assets/speak_clothes_logo.png
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
