@@ -13,6 +13,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:http/http.dart' as http;
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -46,11 +47,11 @@ Future<void> main() async {
 
 class CameraScreen extends StatefulWidget {
   const CameraScreen({
-    super.key,
+    Key? key,
     required this.camera,
     required this.visionApiKey,
     required this.ttsApiKey,
-  });
+  }): super(key: key);
 
   final CameraDescription camera;
   final String? visionApiKey;
@@ -63,9 +64,10 @@ class CameraScreen extends StatefulWidget {
 class CameraScreenState extends State<CameraScreen> {
   late CameraController _controller;
   late Future<void> _initializeControllerFuture;
-  File? _imageFile;
+
   late FlutterTts flutterTts;
   String _analysisResult = '';
+  bool _isDetecting = false;
 
   @override
   void initState() {
@@ -75,19 +77,10 @@ class CameraScreenState extends State<CameraScreen> {
       ResolutionPreset.medium,
     );
     _initializeControllerFuture = _controller.initialize();
-    _loadImage();
     flutterTts = FlutterTts();
-  }
 
-  void _loadImage() async {
-    final imageFile =
-        await rootBundle.load('assets/speak_clothes_top_icon.png');
-    final tempDir = await getTemporaryDirectory();
-    final tempPath = '${tempDir.path}/speak_clothes_top_icon.png';
-    final bytes = imageFile.buffer.asUint8List();
-    await File(tempPath).writeAsBytes(bytes);
-    setState(() {
-      _imageFile = File(tempPath);
+    Timer.periodic(Duration(seconds: 7), (_) {
+      _takePictureAndProcess();
     });
   }
 
@@ -98,15 +91,49 @@ class CameraScreenState extends State<CameraScreen> {
     super.dispose();
   }
 
-  Future<void> _takePicture() async {
-    if (!_controller.value.isInitialized) {
+  Future<String> _translateText(String text) async {
+    final apiKey = dotenv.env['SPEAK_CLOTHES_API'];
+
+    if (apiKey == null) {
+      print('Translation API key not found in environment variables.');
+      return text; // Return the original text if API key is not available
+    }
+
+    final url = Uri.parse('https://translation.googleapis.com/language/translate/v2');
+    final response = await http.post(url, body: {
+      'key': apiKey,
+      'source': 'en',
+      'target': 'ko',
+      'q': text,
+    });
+
+    if (response.statusCode == 200) {
+      final translatedText = json.decode(response.body)['data']['translations'][0]['translatedText'];
+      return translatedText;
+    } else {
+      print('텍스트 번역 중 오류 발생: ${response.body}');
+      return text;
+    }
+  }
+
+  Future<void> _takePictureAndProcess() async {
+    if (!_controller.value.isInitialized || _isDetecting) {
       return;
     }
+
+    setState(() {
+      _isDetecting = true;
+    });
+
     try {
       final XFile picture = await _controller.takePicture();
       await _processImage(picture);
     } catch (e) {
       print("Error taking picture: $e");
+    } finally {
+      setState(() {
+        _isDetecting = false;
+      });
     }
   }
 
@@ -115,7 +142,7 @@ class CameraScreenState extends State<CameraScreen> {
     final imageBytes = await File(picture.path).readAsBytes();
 
     if (apiKey == null) {
-      print('API key not found in environment variables.');
+      print('환경 변수에서 API 키를 찾을 수 없습니다.');
       return;
     }
 
@@ -142,47 +169,24 @@ class CameraScreenState extends State<CameraScreen> {
         if (labelAnnotations != null && labelAnnotations.isNotEmpty) {
           final label = labelAnnotations.first.description;
           final colorInfo = await _getColorInfo(label!, picture);
-          print('Detected label: $label\nColor: $colorInfo');
-          await _speakText('Detected label: $label\nColor: $colorInfo');
+          print('이미지 분석 결과: $label\n색상: $colorInfo');
+          final translatedLabel = await _translateText(label!);
+          await _speakText('이미지 분석 결과: $translatedLabel\n색상: $colorInfo');
 
           setState(() {
-            _analysisResult = 'Detected label: $label\nColor: $colorInfo';
+            _analysisResult = '이미지 분석 결과: $translatedLabel\n색상: $colorInfo';
           });
 
           await flutterTts.setLanguage('en-US');
           await flutterTts.setSpeechRate(0.4);
           await flutterTts.setVolume(1.0);
-          await flutterTts.speak('Detected label: $label\nColor: $colorInfo');
-
-          double screenWidth = MediaQuery.of(context).size.width;
-          double objectPositionX = screenWidth / 2;
-          double distanceThreshold = 20;
-          bool imageMatched = false;
-
-          while (!imageMatched) {
-            String instructionText;
-            if ((objectPositionX - screenWidth / 2).abs() < distanceThreshold) {
-              imageMatched = true;
-              await _takePicture();
-              instructionText = "촬영을 시작하겠습니다.";
-            } else if (objectPositionX > screenWidth / 2) {
-              await _speakText("왼쪽으로 이동하세요.");
-              instructionText = "왼쪽으로 이동하세요.";
-            } else {
-              await _speakText("오른쪽으로 이동하세요.");
-              instructionText = "오른쪽으로 이동하세요.";
-            }
-
-            setState(() {
-              _analysisResult = instructionText;
-            });
-          }
+          await flutterTts.speak('이미지 분석 결과: $translatedLabel\n색상: $colorInfo');
         }
       }
     } catch (e) {
-      print("Error taking picture: $e");
+      print("사진 처리 중 오류 발생 $e");
       setState(() {
-        _analysisResult = 'Error processing image';
+        _analysisResult = '이미지 처리 중 오류 발생';
       });
     }
   }
@@ -267,40 +271,31 @@ class CameraScreenState extends State<CameraScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Camera')),
+      appBar: AppBar(title: const Text('Speak Clothes')),
       body: FutureBuilder<void>(
         future: _initializeControllerFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
-            if (_imageFile != null) {
-              return Stack(
-                children: [
-                  CameraPreview(_controller),
-                  Positioned.fill(child: Image.file(_imageFile!)),
-                  Positioned(
-                    bottom: 16,
-                    left: 16,
-                    right: 16,
-                    child: Text(
-                      _analysisResult,
-                      style: TextStyle(
-                          fontSize: 16,
-                          color: const Color.fromARGB(255, 150, 5, 5)),
-                    ),
+            return Stack(
+              children: [
+                CameraPreview(_controller),
+                Positioned(
+                  bottom: 16,
+                  left: 16,
+                  right: 16,
+                  child: Text(
+                    _isDetecting ? '이미지 분석 중' : _analysisResult,
+                    style: TextStyle(
+                        fontSize: 16,
+                        color: const Color.fromARGB(255, 150, 5, 5)),
                   ),
-                ],
-              );
-            } else {
-              return CameraPreview(_controller);
-            }
+                ),
+              ],
+            );
           } else {
             return const Center(child: CircularProgressIndicator());
           }
         },
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _takePicture,
-        child: Icon(Icons.camera),
       ),
     );
   }
