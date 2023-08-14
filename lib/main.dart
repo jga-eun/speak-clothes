@@ -51,7 +51,7 @@ class CameraScreen extends StatefulWidget {
     required this.camera,
     required this.visionApiKey,
     required this.ttsApiKey,
-  }): super(key: key);
+  }) : super(key: key);
 
   final CameraDescription camera;
   final String? visionApiKey;
@@ -99,7 +99,8 @@ class CameraScreenState extends State<CameraScreen> {
       return text; // Return the original text if API key is not available
     }
 
-    final url = Uri.parse('https://translation.googleapis.com/language/translate/v2');
+    final url =
+        Uri.parse('https://translation.googleapis.com/language/translate/v2');
     final response = await http.post(url, body: {
       'key': apiKey,
       'source': 'en',
@@ -108,7 +109,8 @@ class CameraScreenState extends State<CameraScreen> {
     });
 
     if (response.statusCode == 200) {
-      final translatedText = json.decode(response.body)['data']['translations'][0]['translatedText'];
+      final translatedText = json.decode(response.body)['data']['translations']
+          [0]['translatedText'];
       return translatedText;
     } else {
       print('텍스트 번역 중 오류 발생: ${response.body}');
@@ -164,6 +166,8 @@ class CameraScreenState extends State<CameraScreen> {
 
     try {
       final response = await visionApi.images.annotate(request);
+      print(
+          'Vision API Response: $response'); // Add this line to log the response
       if (response.responses != null && response.responses!.isNotEmpty) {
         final labelAnnotations = response.responses!.first.labelAnnotations;
         if (labelAnnotations != null && labelAnnotations.isNotEmpty) {
@@ -192,14 +196,6 @@ class CameraScreenState extends State<CameraScreen> {
   }
 
   Future<String> _getColorInfo(String label, XFile picture) async {
-    // Vision API에서 가져온 이미지 색상 정보를 Firebase에 저장하고 가져오는 부분
-    final firebaseAuth = FirebaseAuth.instance;
-    final user = firebaseAuth.currentUser;
-    if (user == null) {
-      print('User not logged in.');
-      return 'Unknown';
-    }
-
     final visionApiKey = widget.visionApiKey;
 
     if (visionApiKey == null) {
@@ -213,29 +209,34 @@ class CameraScreenState extends State<CameraScreen> {
     final imageBytes = await File(picture.path!).readAsBytes();
     final imageContent = base64Encode(imageBytes);
 
-    final request = vision.Image.fromJson({'content': imageContent});
-    final response = await visionApi.images.annotate(
-      vision.BatchAnnotateImagesRequest.fromJson({
-        'requests': [
-          {
-            'image': request,
-            'features': [
-              {'type': 'IMAGE_PROPERTIES'}
-            ],
-          },
-        ],
-      }),
+    final image = vision.Image(content: imageContent);
+
+    final request = vision.BatchAnnotateImagesRequest(
+      requests: [
+        vision.AnnotateImageRequest(
+          image: image,
+          features: [
+            vision.Feature(type: 'IMAGE_PROPERTIES'),
+          ],
+        ),
+      ],
     );
 
-    if (response.responses != null && response.responses!.isNotEmpty) {
-      final color = response.responses!.first.imagePropertiesAnnotation
-          ?.dominantColors?.colors?.first;
-      if (color != null && color.color != null) {
-        final r = (color.color!.red! * 255).toInt();
-        final g = (color.color!.green! * 255).toInt();
-        final b = (color.color!.blue! * 255).toInt();
-        return 'RGB: $r, $g, $b';
+    try {
+      final response = await visionApi.images.annotate(request);
+      if (response.responses != null && response.responses!.isNotEmpty) {
+        final color = response.responses!.first.imagePropertiesAnnotation
+            ?.dominantColors?.colors?.first;
+        if (color != null && color.color != null) {
+          final r = (color.color!.red!).toInt();
+          final g = (color.color!.green!).toInt();
+          final b = (color.color!.blue!).toInt();
+          return 'RGB: $r, $g, $b';
+        }
       }
+    } catch (e) {
+      print("사진 처리 중 오류 발생 $e");
+      // ...
     }
 
     return 'Unknown';
