@@ -326,7 +326,11 @@ class CameraScreenState extends State<CameraScreen> {
           final r = (color.color!.red!).toInt();
           final g = (color.color!.green!).toInt();
           final b = (color.color!.blue!).toInt();
-          return 'RGB: $r, $g, $b';
+
+          // Convert RGB values to hexadecimal format
+          final hexColor = '#${r.toRadixString(16).padLeft(2, '0')}${g.toRadixString(16).padLeft(2, '0')}${b.toRadixString(16).padLeft(2, '0')}';
+
+          return 'RGB: $r, $g, $b\nHex: $hexColor';
         }
       }
     } catch (e) {
