@@ -41,6 +41,9 @@ dependencies:
   http: ^0.13.0
   flutter_launcher_icons: ^0.13.1
   firebase_core: ^2.15.0
+  google_sign_in: ^6.1.4
+  cryptography: ^2.5.0
+  pointycastle: ^3.7.3
 
 flutter_icons:
   android: "ic_logo"
@@ -73,6 +76,8 @@ flutter:
   assets:
     - assets/speak_clothes_top_icon.png
     - .env
+    - assets/unique-terminus-394917-b6e6dbbc49a6.json
+    - assets/client_secret_139320715526-a9mqtprt706shu2dkm6glk36g42k438a.apps.googleusercontent.com.json
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in

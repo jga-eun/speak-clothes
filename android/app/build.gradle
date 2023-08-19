@@ -26,6 +26,14 @@ apply plugin: 'kotlin-android'
 apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
 
 android {
+    signingConfigs {
+        release {
+            storeFile file('Storing speak_clothes_key_name.jks') // 릴리스용 키스토어 파일 경로
+            storePassword 'clothes21869299' // 키스토어 비밀번호
+            keyAlias 'speak_clothes_alias_name' // 키 별칭
+            keyPassword 'speakkey21869299' // 키 비밀번호
+        }
+    }
     namespace "com.example.speak_clothes"
     compileSdkVersion flutter.compileSdkVersion
     ndkVersion flutter.ndkVersion
@@ -59,6 +67,7 @@ android {
             // TODO: Add your own signing config for the release build.
             // Signing with the debug keys for now, so `flutter run --release` works.
             signingConfig signingConfigs.debug
+            signingConfig signingConfigs.release
         }
     }
 }
