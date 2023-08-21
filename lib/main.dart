@@ -69,7 +69,7 @@ class _LoadingMenuState extends State<LoadingMenu> {
   @override
   void initState() {
     super.initState();
-    _timer = Timer.periodic(const Duration(milliseconds: 10), (timer) {
+    _timer = Timer.periodic(const Duration(milliseconds: 30), (timer) {
       setState(() {
         _progress += 0.01;
         if (_progress >= 1) {
@@ -332,13 +332,13 @@ class CameraScreenState extends State<CameraScreen> {
                 vertexPrediction = '가디건';
                 break;
               case 'jacket':
-                vertexPrediction = '자켓';
+                vertexPrediction = '재킷';
                 break;
               case 'sweatshirt':
                 vertexPrediction = '맨투맨';
                 break;
               case 'sleeveless':
-                vertexPrediction = '나시';
+                vertexPrediction = '민소매';
                 break;
               case 'blouse':
                 vertexPrediction = '블라우스';
@@ -353,7 +353,7 @@ class CameraScreenState extends State<CameraScreen> {
               _analysisResult = '$colorInfo상의 $vertexPrediction입니다.';
             });
 
-            await flutterTts.setLanguage('en-US');
+            await flutterTts.setLanguage('ko-KR');
             await flutterTts.setSpeechRate(0.4);
             await flutterTts.setVolume(1.0);
             await flutterTts.speak('$colorInfo상의 $vertexPrediction입니다.');
@@ -534,14 +534,16 @@ class CameraScreenState extends State<CameraScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      //appBar: AppBar(title: const Text('Speak Clothes')),
+      // appBar: AppBar(title: const Text('Speak Clothes')),
       body: FutureBuilder<void>(
         future: _initializeControllerFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
             return Stack(
               children: [
-                CameraPreview(_controller),
+                Positioned.fill(
+                  child: CameraPreview(_controller),
+                ),
                 Positioned(
                   bottom: 16,
                   left: 16,
@@ -557,7 +559,6 @@ class CameraScreenState extends State<CameraScreen> {
                           color: const Color.fromARGB(255, 150, 5, 5),
                         ),
                       ),
-                      SizedBox(height: 8),
                     ],
                   ),
                 ),
