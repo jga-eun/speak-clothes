@@ -17,6 +17,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:http/http.dart' as http;
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:image/image.dart' as img;
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -25,19 +26,16 @@ Future<void> main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  // .env 파일에서 API 키 로드
   await dotenv.load(fileName: ".env");
   final visionApiKey = dotenv.env['SPEAK_CLOTHES_API'];
   final ttsApiKey = dotenv.env['SPEAK_CLOTHES_API'];
 
   final cameras = await availableCameras();
   final firstCamera = cameras.first;
+
   runApp(
     MaterialApp(
       theme: ThemeData(
-        appBarTheme: const AppBarTheme(
-          color: Color.fromARGB(255, 230, 211, 34),
-        ),
       ),
       home: CameraScreen(
         camera: firstCamera,
@@ -95,13 +93,45 @@ class CameraScreenState extends State<CameraScreen> {
       "type": "service_account",
       "project_id": "unique-terminus-394917",
       "private_key_id": "b6e6dbbc49a60dfc6f111df53960c9a8cfcfac6e",
-      "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQC1+PySt1PXa0rZ\nGl6pEwxJZ2+TRqDoROEFSRE4zHmUqaVzQSsabKK+sziFF45JyoAPR/QgbF2+qZQC\nH9b7InTrhtwH95uh3IahQQjVVhI6i1ZnMiQ21+crm2skzTeuKwhVnnZrH8cxoV2H\nTSHA/zZS8RwIcX/ghqoyVpbk5AeczoAvW3MHxXcJLZm9uhCdnlanfjbN2Er/VZ/k\nFhlfUoniLMs67g6hBF8cYMLMYgQqR4RGfBHfllI3bEV1tOsHeutZn6LHgAaA9Cc8\nIYbbmc1eZ97Vyo+pF5OKM5ii+2ARrvs9FOOEbZyKbgSSAAQ0ppa18t2VbpNVMUKT\nI2/+bgmvAgMBAAECggEANDDr2/aZpNzAdGEUSkDM0tbIUQC+UK/ErBvnRRecPU+k\nxNgpkSQcTz6e1MlLRY2/SeK0uYHrJy6C5VMVeSTKTOz6eYyCRhu2P1SkQG+1vbXN\n+74NVe95fW/PfJghQqJT+x5+Tz4nhuwFo7MzHaP1BDfj9uX6q75j3RkpoQ9nwYia\npkpG/HmwqlAXBUd0TA6Q8SrRUPH6UtGQKmuyzxVJ7S2EKK5xQi+ChMCQBYOJ9d9a\nqJ66oeRs1XYBxwp9Q65LjNQitYiK+N9hUHTt815iIFXuWpK4MmGRa1cwhKW55Pah\ncX9rFuMGjDGCIGZbUWObSExPiiIKGpUxtfHriV4D0QKBgQDf1d81OLaaa5Ke114S\n8sXfL2QogUMCaPTuoSwuyihT4xro3yFmgGN++Uj23a2UsDKIkpgOU91iHkAnxqXr\nYnwKhnTVo65giTfnSAyTfvQW/b7zNQ5iOD2Kp3miCebFwpHtaKQJwdAJI1aGMM2T\nj0ahSeFcvazgXfLavxE/jyjAsQKBgQDQHyBjK66oet2AERyJTT1/HsLBNXk6+/ev\nlF/InlRbREkEthNGZEsk+vm2zrYvmHaBcLa39KIRTCxE8sc4KdHNGGLU6FbCTCv7\nbAvf3IfIk777RRaL4KFvPqLyubWpB3lqk8irGHAGrPdVYtTkITK0kux3lQ+C3d3R\niOHr9xkIXwKBgQCNOh4ZMG1WRSU/f1dl0TOzu+0P+W7UKHDR13NPGlITi6lA4Pfr\n+nnMdXDqAbgxpnJb5VJ3R8bYz4lfD2FEgOEOqwMwgJPXaPySuszkiydrEjLWtNUc\nd6usvjpqWKD4iekUx/8oANdHzLoc9NHglnfT8A93Ol3HOr+t8PvrBGKMIQKBgQCd\nQefHB4rB45Ta4BMf7C07kJK4Sx9/YkSVdxepD3nOPJqv5KRL3ByrpLhrWWZwMFPb\nGr/13/NV/qi0sH24AmF1B6gmGCj2R3g0Uj/mt0wiUwFL+7g9mU5iMIIPxiNtxSgJ\nUAGgxqZfZPK+oh8bAbq+lwX2lbtStzKU0UlkcyGHIQKBgE286MA0TE6rLViYeE1Q\nqC7IIzkJSf/CdXXH4y4FIskPqd1x5uBA8+LQfy2pOedHi2QkhUgGf3xpLNZVK14O\nKpg/tkTLig6paQfbobB6bWYbXS8OPnpYplLQ3pbeRtpB/SI6+5xekbylYHs1tex2\nCVu1UVZWpUTbWOugIr4fHQdC\n-----END PRIVATE KEY-----\n",
-      "client_email": "speak-clothes-vertex-realreal@unique-terminus-394917.iam.gserviceaccount.com",
-      "client_id": "139320715526-a9mqtprt706shu2dkm6glk36g42k438a.apps.googleusercontent.com",
+      "private_key":
+      "-----BEGIN PRIVATE KEY-----"
+          "\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQC1+PySt1PXa0rZ"
+          "\nGl6pEwxJZ2+TRqDoROEFSRE4zHmUqaVzQSsabKK+sziFF45JyoAPR/QgbF2+qZQC"
+          "\nH9b7InTrhtwH95uh3IahQQjVVhI6i1ZnMiQ21+crm2skzTeuKwhVnnZrH8cxoV2H"
+          "\nTSHA/zZS8RwIcX/ghqoyVpbk5AeczoAvW3MHxXcJLZm9uhCdnlanfjbN2Er/VZ/k"
+          "\nFhlfUoniLMs67g6hBF8cYMLMYgQqR4RGfBHfllI3bEV1tOsHeutZn6LHgAaA9Cc8"
+          "\nIYbbmc1eZ97Vyo+pF5OKM5ii+2ARrvs9FOOEbZyKbgSSAAQ0ppa18t2VbpNVMUKT"
+          "\nI2/+bgmvAgMBAAECggEANDDr2/aZpNzAdGEUSkDM0tbIUQC+UK/ErBvnRRecPU+k"
+          "\nxNgpkSQcTz6e1MlLRY2/SeK0uYHrJy6C5VMVeSTKTOz6eYyCRhu2P1SkQG+1vbXN"
+          "\n+74NVe95fW/PfJghQqJT+x5+Tz4nhuwFo7MzHaP1BDfj9uX6q75j3RkpoQ9nwYia"
+          "\npkpG/HmwqlAXBUd0TA6Q8SrRUPH6UtGQKmuyzxVJ7S2EKK5xQi+ChMCQBYOJ9d9a"
+          "\nqJ66oeRs1XYBxwp9Q65LjNQitYiK+N9hUHTt815iIFXuWpK4MmGRa1cwhKW55Pah"
+          "\ncX9rFuMGjDGCIGZbUWObSExPiiIKGpUxtfHriV4D0QKBgQDf1d81OLaaa5Ke114S"
+          "\n8sXfL2QogUMCaPTuoSwuyihT4xro3yFmgGN++Uj23a2UsDKIkpgOU91iHkAnxqXr"
+          "\nYnwKhnTVo65giTfnSAyTfvQW/b7zNQ5iOD2Kp3miCebFwpHtaKQJwdAJI1aGMM2T"
+          "\nj0ahSeFcvazgXfLavxE/jyjAsQKBgQDQHyBjK66oet2AERyJTT1/HsLBNXk6+/ev"
+          "\nlF/InlRbREkEthNGZEsk+vm2zrYvmHaBcLa39KIRTCxE8sc4KdHNGGLU6FbCTCv7"
+          "\nbAvf3IfIk777RRaL4KFvPqLyubWpB3lqk8irGHAGrPdVYtTkITK0kux3lQ+C3d3R"
+          "\niOHr9xkIXwKBgQCNOh4ZMG1WRSU/f1dl0TOzu+0P+W7UKHDR13NPGlITi6lA4Pfr"
+          "\n+nnMdXDqAbgxpnJb5VJ3R8bYz4lfD2FEgOEOqwMwgJPXaPySuszkiydrEjLWtNUc"
+          "\nd6usvjpqWKD4iekUx/8oANdHzLoc9NHglnfT8A93Ol3HOr+t8PvrBGKMIQKBgQCd"
+          "\nQefHB4rB45Ta4BMf7C07kJK4Sx9/YkSVdxepD3nOPJqv5KRL3ByrpLhrWWZwMFPb"
+          "\nGr/13/NV/qi0sH24AmF1B6gmGCj2R3g0Uj/mt0wiUwFL+7g9mU5iMIIPxiNtxSgJ"
+          "\nUAGgxqZfZPK+oh8bAbq+lwX2lbtStzKU0UlkcyGHIQKBgE286MA0TE6rLViYeE1Q"
+          "\nqC7IIzkJSf/CdXXH4y4FIskPqd1x5uBA8+LQfy2pOedHi2QkhUgGf3xpLNZVK14O"
+          "\nKpg/tkTLig6paQfbobB6bWYbXS8OPnpYplLQ3pbeRtpB/SI6+5xekbylYHs1tex2"
+          "\nCVu1UVZWpUTbWOugIr4fHQdC\n-----END PRIVATE KEY-----\n",
+      "client_email":
+      "speak-clothes-vertex-realreal@unique-terminus-394917.iam.gserviceaccount.com",
+      "client_id":
+      "139320715526-a9mqtprt706shu2dkm6glk36g42k438a.apps.googleusercontent.com",
       "auth_uri": "https://accounts.google.com/o/oauth2/auth",
       "token_uri": "https://oauth2.googleapis.com/token",
-      "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-      "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/speak-clothes-vertex-realreal%40unique-terminus-394917.iam.gserviceaccount.com",
+      "auth_provider_x509_cert_url":
+      "https://www.googleapis.com/oauth2/v1/certs",
+      "client_x509_cert_url":
+      "https://www.googleapis.com/robot/v1/metadata/x509/speak-clothes-vertex-realreal"
+          "%40unique-terminus-394917.iam.gserviceaccount.com",
       "universe_domain": "googleapis.com"
     });
 
@@ -114,33 +144,6 @@ class CameraScreenState extends State<CameraScreen> {
     _controller.dispose();
     flutterTts.stop();
     super.dispose();
-  }
-
-  Future<String> _translateText(String text) async {
-    final apiKey = dotenv.env['SPEAK_CLOTHES_API'];
-
-    if (apiKey == null) {
-      print('Translation API key not found in environment variables.');
-      return text; // Return the original text if API key is not available
-    }
-
-    final url =
-    Uri.parse('https://translation.googleapis.com/language/translate/v2');
-    final response = await http.post(url, body: {
-      'key': apiKey,
-      'source': 'en',
-      'target': 'ko',
-      'q': text,
-    });
-
-    if (response.statusCode == 200) {
-      final translatedText = json.decode(response.body)['data']['translations']
-      [0]['translatedText'];
-      return translatedText;
-    } else {
-      print('텍스트 번역 중 오류 발생: ${response.body}');
-      return text;
-    }
   }
 
   Future<void> _takePictureAndProcess() async {
@@ -170,7 +173,6 @@ class CameraScreenState extends State<CameraScreen> {
 
     print('Image size: ${imageBytes.length} bytes');
 
-
     if (apiKey == null) {
       print('환경 변수에서 API 키를 찾을 수 없습니다.');
       return;
@@ -195,38 +197,79 @@ class CameraScreenState extends State<CameraScreen> {
     try {
       final response = await visionApi.images.annotate(request);
       print(
-          'Vision API Response: $response'); // Add this line to log the response
+          'Vision API Response: $response');
       if (response.responses != null && response.responses!.isNotEmpty) {
         final labelAnnotations = response.responses!.first.labelAnnotations;
         if (labelAnnotations != null && labelAnnotations.isNotEmpty) {
           final labelAnnotation = labelAnnotations.first;
-          final label = labelAnnotation.description ?? 'Unknown'; // description이 null이면 'Unknown'을 할당
+          final label = labelAnnotation.description ??
+              'Unknown';
           if (label != null) {
             final colorInfo = await _getColorInfo(label, picture);
             print('이미지 분석 결과: $label\n색상: $colorInfo');
-            final translatedLabel = await _translateText(label!);
 
             // Vertex AI 예측 모델 호출 및 결과 처리
-            final vertexPrediction = await _getVertexPrediction(imageBytes);
+            final prevertexPrediction = await _getVertexPrediction(imageBytes);
+            final vertexPrediction;
+            switch (prevertexPrediction) {
+              case 'hood_zip_up':
+                vertexPrediction = '후드집업';
+                break;
+              case 'knit':
+                vertexPrediction = '니트';
+                break;
+              case 'check_shirt':
+                vertexPrediction = '체크 셔츠';
+                break;
+              case 'shirt':
+                vertexPrediction = '셔츠';
+                break;
+              case 'stripe_t_shirt':
+                vertexPrediction = '줄무늬 티셔츠';
+                break;
+              case 't_shirt':
+                vertexPrediction = '티';
+                break;
+              case 'hood_t_shirt':
+                vertexPrediction = '후드티';
+                break;
+              case 'cardigan':
+                vertexPrediction = '가디건';
+                break;
+              case 'jacket':
+                vertexPrediction = '자켓';
+                break;
+              case 'sweatshirt':
+                vertexPrediction = '맨투맨';
+                break;
+              case 'sleeveless':
+                vertexPrediction = '나시';
+                break;
+              case 'blouse':
+                vertexPrediction = '블라우스';
+                break;
+              default:
+                vertexPrediction = '인식 불가능';
+            }
             print('옷 종류: $vertexPrediction');
 
             setState(() {
-              _analysisResult = '옷 종류: $vertexPrediction\n색상: $colorInfo';
+              //_analysisResult = '옷 종류: $vertexPrediction\n색상: $colorInfo';
+              _analysisResult = '$colorInfo상의 $vertexPrediction입니다.';
             });
 
             await flutterTts.setLanguage('en-US');
             await flutterTts.setSpeechRate(0.4);
             await flutterTts.setVolume(1.0);
-            await flutterTts.speak('옷 종류: $vertexPrediction\n색상: $colorInfo');
-
-            await _speakText('옷 종류: $vertexPrediction\n색상: $colorInfo');
+            await flutterTts.speak('$colorInfo상의 $vertexPrediction입니다.');
           }
         }
       }
     } catch (e) {
       print("사진 처리 중 오류 발생 $e");
       setState(() {
-        _analysisResult = '이미지 처리 중 오류 발생';
+        //_analysisResult = '이미지 처리 중 오류 발생';
+        _analysisResult = ' ';
       });
     }
   }
@@ -253,7 +296,7 @@ class CameraScreenState extends State<CameraScreen> {
       ]
     };
 
-    print('Sending API request to Vertex AI...');
+    //print('Sending API request to Vertex AI...');
 
     try {
       final response = await _authClient.post(
@@ -262,46 +305,48 @@ class CameraScreenState extends State<CameraScreen> {
         body: json.encode(requestBody),
       );
 
-      print('Response status code: ${response.statusCode}');
-      print('Response from Vertex AI: ${response.body}');
+      //print('Response status code: ${response.statusCode}');
+      //print('Response from Vertex AI: ${response.body}');
 
       if (response.statusCode == 200) {
         final decodedResponse = json.decode(response.body);
-        final predictions = decodedResponse['predictions'] as List<dynamic>; // List로 파싱
+        final predictions =
+        decodedResponse['predictions'] as List<dynamic>;
         final confidenceList = predictions[0]['confidences'];
-        final maxConfidence = confidenceList.reduce((max, value) => value > max ? value : max);
+        final maxConfidence =
+        confidenceList.reduce((max, value) => value > max ? value : max);
         final maxConfidenceIndex = confidenceList.indexOf(maxConfidence);
         if (predictions.isNotEmpty) {
-          final prediction = predictions[0]['displayNames'][maxConfidenceIndex] as String?; // 예측 결과의 키값에 따라 수정
-          print('예측 결과: $prediction');
-          return prediction ?? 'Unknown1'; // null이면 'Unknown'을 반환
+          final prediction = predictions[0]['displayNames'][maxConfidenceIndex]
+          as String?;
+          //print('예측 결과: $prediction');
+          return prediction ?? 'Unknown1';
         } else {
-          print('예측 결과 없음');
+          //print('예측 결과 없음');
           return 'Unknown2';
         }
       } else {
-        print('Error, Failed to load prediction from Vertex AI: ${response.reasonPhrase}');
+        //print('Error, Failed to load prediction from Vertex AI: ${response.reasonPhrase}');
         return 'Error1';
       }
     } catch (e) {
-      print("Error, Failed to send API request to Vertex AI: $e"); // 예외 출력
+      //print("Error, Failed to send API request to Vertex AI: $e"); // 예외 출력
       return 'Error2';
     }
   }
 
-
   Future<String> _getColorInfo(String label, XFile picture) async {
-    final visionApiKey = widget.visionApiKey;
+    final apiKey = widget.visionApiKey;
 
-    if (visionApiKey == null) {
-      print('API key not found in environment variables.');
+    if (apiKey == null) {
+      print('환경 변수에서 API 키를 찾을 수 없습니다.');
       return 'Unknown';
     }
 
-    final client = auth.clientViaApiKey(visionApiKey);
+    final client = auth.clientViaApiKey(apiKey);
     final visionApi = vision.VisionApi(client);
 
-    final imageBytes = await File(picture.path!).readAsBytes();
+    final imageBytes = await File(picture.path).readAsBytes();
     final imageContent = base64Encode(imageBytes);
 
     final image = vision.Image(content: imageContent);
@@ -327,50 +372,74 @@ class CameraScreenState extends State<CameraScreen> {
           final g = (color.color!.green!).toInt();
           final b = (color.color!.blue!).toInt();
 
-          // Convert RGB values to hexadecimal format
-          final hexColor = '#${r.toRadixString(16).padLeft(2, '0')}${g.toRadixString(16).padLeft(2, '0')}${b.toRadixString(16).padLeft(2, '0')}';
+          final hexColor = '0xff${r.toRadixString(16).padLeft(2, '0')}'
+              '${g.toRadixString(16).padLeft(2, '0')}'
+              '${b.toRadixString(16).padLeft(2, '0')}';
+          print('hexColor : $hexColor');
 
-          return 'RGB: $r, $g, $b\nHex: $hexColor';
+          final colorLabel = _findAndPrintMatchingFields(hexColor);
+
+          return colorLabel;
         }
       }
     } catch (e) {
       print("사진 처리 중 오류 발생 $e");
-      // ...
     }
 
     return 'Unknown';
   }
 
-  Future<void> _speakText(String text) async {
-    final apiKey = widget.ttsApiKey;
+  Future<String> _findAndPrintMatchingFields(String targetValue) async {
+    int intTargetValue = int.parse(targetValue);
+    List<int> numbers = [4281479730, 4286085240, 4279500800, 4278190080, 4288059030,
+      4280888355, 4280819230, 4278523202, 4280627566, 4284075519, 4282344053, 4280147668,
+      4279918763, 4287275708, 4279511456, 4290102217, 4278254591, 4278254591, 4278452479,
+      4287734453, 4290896092, 4287408760, 4292999880, 4278251610, 4282808350, 4278206740,
+      4285446440, 4283479150, 4286767360, 4280862815, 4282152960, 4280870400, 4281497600,
+      4291361440, 4284136960, 4280199680, 4286758500, 4282140210, 4279834900, 4291989870,
+      4294927360, 4294935110, 4284759075, 4286732860, 4294947990, 4291975720, 4291340950,
+      4284764230, 4286735440, 4294940260, 4294932480, 4291655750, 4287383070, 4286739305,
+      4294932530, 4288035850, 4284753920, 4292625920, 4291791501, 4289206329, 4283503921,
+      4290075545, 4283042929, 4293867102, 4289272714, 4284361801, 4294810021, 4292527587,
+      4294956260, 4288046180, 4285071360, 4294955730, 4294948020, 4294924890, 4294901760,
+      4290641920, 4285411890, 4292935680, 4294937740, 4294940310, 4285399040, 4294927460,
+      4294909470, 4285419600, 4282122240, 4282129950, 4290667620, 4290680470, 4290654770,
+      4294917180, 4294638280, 4294963440, 4294310889, 4294766802, 4294967295, 4294965760,
+      4287794944, 4294632985, 4291347260, 4291347260, 4292203008, 4294967075, 4294307920,
+      4292335385, 4294440342, 4294638270];
+    int realIntTargetValue = numbers.reduce((closest, current) {
+      int currentDistance = (current - intTargetValue).abs();
+      int closestDistance = (closest - intTargetValue).abs();
 
-    if (apiKey == null) {
-      print('Text-to-Speech API key not found in environment variables.');
-      return;
+      if (currentDistance < closestDistance) {
+        return current;
+      } else {
+        return closest;
+      }
+    });
+    final collectionRef = FirebaseFirestore.instance.collection('colors');
+    final querySnapshot = await collectionRef.get();
+
+    for (final doc in querySnapshot.docs) {
+      final fieldMap = doc.data() as Map<String, dynamic>;
+      for (final fieldName in fieldMap.keys) {
+        final fieldValue = fieldMap[fieldName];
+        if (fieldValue is int) {
+          if (fieldValue == realIntTargetValue) {
+            print('Matching field name in document "${doc.id}": $fieldName');
+
+            return fieldName;
+          }
+        }
+      }
     }
-
-    final client = auth.clientViaApiKey(apiKey);
-    final ttsApi = tts.TexttospeechApi(client);
-
-    final synthesisInput = tts.SynthesisInput(text: text);
-    final voiceSelection =
-    tts.VoiceSelectionParams(languageCode: 'en-US', ssmlGender: 'Female');
-    final audioConfig = tts.AudioConfig(audioEncoding: 'MP3');
-
-    final ttsRequest = tts.SynthesizeSpeechRequest(
-      input: synthesisInput,
-      voice: voiceSelection,
-      audioConfig: audioConfig,
-    );
-
-    //ttsResponse에서 음성 파일을 재생하거나 저장할 수 있음.
-    final ttsResponse = await ttsApi.text.synthesize(ttsRequest);
+    throw Exception('Matching field not found');
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Speak Clothes')),
+      //appBar: AppBar(title: const Text('Speak Clothes')),
       body: FutureBuilder<void>(
         future: _initializeControllerFuture,
         builder: (context, snapshot) {
@@ -382,11 +451,19 @@ class CameraScreenState extends State<CameraScreen> {
                   bottom: 16,
                   left: 16,
                   right: 16,
-                  child: Text(
-                    _isDetecting ? '이미지 분석 중' : _analysisResult,
-                    style: TextStyle(
-                        fontSize: 16,
-                        color: const Color.fromARGB(255, 150, 5, 5)),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        //_isDetecting ? '이미지 분석 중' : _analysisResult,
+                        _isDetecting ? ' ' : _analysisResult,
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: const Color.fromARGB(255, 150, 5, 5),
+                        ),
+                      ),
+                      SizedBox(height: 8),
+                    ],
                   ),
                 ),
               ],

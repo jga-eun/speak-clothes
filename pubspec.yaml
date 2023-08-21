@@ -42,8 +42,7 @@ dependencies:
   flutter_launcher_icons: ^0.13.1
   firebase_core: ^2.15.0
   google_sign_in: ^6.1.4
-  cryptography: ^2.5.0
-  pointycastle: ^3.7.3
+  cloud_firestore: ^4.8.5
 
 flutter_icons:
   android: "ic_logo"
