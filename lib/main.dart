@@ -323,7 +323,7 @@ class CameraScreenState extends State<CameraScreen> {
                 vertexPrediction = '줄무늬 티셔츠';
                 break;
               case 't_shirt':
-                vertexPrediction = '티';
+                vertexPrediction = '티셔츠';
                 break;
               case 'hood_t_shirt':
                 vertexPrediction = '후드티';
