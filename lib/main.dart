@@ -20,19 +20,24 @@ import 'package:image/image.dart' as img;
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 Future<void> main() async {
+  // Flutter 앱 초기화
   WidgetsFlutterBinding.ensureInitialized();
 
+  // Firebase 초기화
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
+  // API 키 로드
   await dotenv.load(fileName: ".env");
   final visionApiKey = dotenv.env['SPEAK_CLOTHES_API'];
   final ttsApiKey = dotenv.env['SPEAK_CLOTHES_API'];
 
+  // 사용 가능한 카메라 목록 가져오기
   final cameras = await availableCameras();
   final firstCamera = cameras.first;
 
+  // 앱 실행
   runApp(
     MaterialApp(
       home:
@@ -44,6 +49,7 @@ Future<void> main() async {
   );
 }
 
+// 로딩화면
 class LoadingMenu extends StatefulWidget {
   const LoadingMenu({
     Key? key,
@@ -69,6 +75,8 @@ class _LoadingMenuState extends State<LoadingMenu> {
   @override
   void initState() {
     super.initState();
+
+    // 일정 간격마다 로딩 화면을 업데이트하고, 카메라 화면으로 전환
     _timer = Timer.periodic(const Duration(milliseconds: 30), (timer) {
       setState(() {
         _progress += 0.01;
@@ -80,7 +88,7 @@ class _LoadingMenuState extends State<LoadingMenu> {
               camera: widget.camera,
               visionApiKey: widget.visionApiKey,
               ttsApiKey: widget.ttsApiKey,
-            ), // 카메라 화면 위젯으로 변경
+            ),
           ));
         }
       });
@@ -89,6 +97,7 @@ class _LoadingMenuState extends State<LoadingMenu> {
 
   @override
   void dispose() {
+    // 위젯이 제거될 때 타이머 정리
     _timer?.cancel();
     super.dispose();
   }
@@ -101,6 +110,7 @@ class _LoadingMenuState extends State<LoadingMenu> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            // 로딩 화면 구성 요소
             SizedBox(
               width: 230,
               height: 230,
@@ -125,13 +135,14 @@ class _LoadingMenuState extends State<LoadingMenu> {
                 ],
               ),
             ),
+            // 로딩 텍스트
             Container(
               padding: const EdgeInsets.only(bottom: 80),
               width: 110,
               alignment: Alignment.center,
               child: const Text(
                 'Loading',
-                style: TextStyle(fontSize: 30, color: Colors.white),
+                style: TextStyle(fontSize: 25, color: Colors.white),
               ),
             ),
           ],
@@ -141,6 +152,7 @@ class _LoadingMenuState extends State<LoadingMenu> {
   }
 }
 
+// 카메라 화면 위젯
 class CameraScreen extends StatefulWidget {
   const CameraScreen({
     Key? key,
@@ -169,15 +181,21 @@ class CameraScreenState extends State<CameraScreen> {
   @override
   void initState() {
     super.initState();
+
+    // 카메라 컨트롤러 초기화
     _controller = CameraController(
       widget.camera,
       ResolutionPreset.medium,
     );
     _initializeControllerFuture = _controller.initialize();
+
+    // 텍스트 음성 변환을 위한 플러터 TTS 초기화
     flutterTts = FlutterTts();
 
+    // Google Cloud Vision API와 통신하기 위한 클라이언트 초기화
     _initializeAuthClient();
 
+    // 일정 간격마다 사진 촬영 후 처리 함수 호출
     Timer.periodic(Duration(seconds: 7), (_) {
       _takePictureAndProcess();
     });
@@ -236,11 +254,13 @@ class CameraScreenState extends State<CameraScreen> {
 
   @override
   void dispose() {
+    // 위젯이 제거될 때 카메라 컨트롤러와 TTS 정리
     _controller.dispose();
     flutterTts.stop();
     super.dispose();
   }
 
+  // 사진 촬영 및 처리
   Future<void> _takePictureAndProcess() async {
     if (!_controller.value.isInitialized || _isDetecting) {
       return;
@@ -262,6 +282,7 @@ class CameraScreenState extends State<CameraScreen> {
     }
   }
 
+  // 이미지 처리
   Future<void> _processImage(XFile picture) async {
     final apiKey = widget.visionApiKey;
     final imageBytes = await File(picture.path).readAsBytes();
@@ -430,6 +451,7 @@ class CameraScreenState extends State<CameraScreen> {
     }
   }
 
+  // 색상 정보 가져오기
   Future<String> _getColorInfo(String label, XFile picture) async {
     final apiKey = widget.visionApiKey;
 
@@ -484,6 +506,7 @@ class CameraScreenState extends State<CameraScreen> {
     return 'Unknown';
   }
 
+  // 데이터베이스에 있는 색상값과 가장 유사한 값을 찾고, 필드 찾기
   Future<String> _findAndPrintMatchingFields(String targetValue) async {
     int intTargetValue = int.parse(targetValue);
     List<int> numbers = [4281479730, 4286085240, 4279500800, 4278190080, 4288059030,
