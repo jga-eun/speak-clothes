@@ -203,49 +203,6 @@ class CameraScreenState extends State<CameraScreen> {
 
   Future<void> _initializeAuthClient() async {
     final credentials = auth.ServiceAccountCredentials.fromJson({
-      "type": "service_account",
-      "project_id": "unique-terminus-394917",
-      "private_key_id": "b6e6dbbc49a60dfc6f111df53960c9a8cfcfac6e",
-      "private_key":
-      "-----BEGIN PRIVATE KEY-----"
-          "\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQC1+PySt1PXa0rZ"
-          "\nGl6pEwxJZ2+TRqDoROEFSRE4zHmUqaVzQSsabKK+sziFF45JyoAPR/QgbF2+qZQC"
-          "\nH9b7InTrhtwH95uh3IahQQjVVhI6i1ZnMiQ21+crm2skzTeuKwhVnnZrH8cxoV2H"
-          "\nTSHA/zZS8RwIcX/ghqoyVpbk5AeczoAvW3MHxXcJLZm9uhCdnlanfjbN2Er/VZ/k"
-          "\nFhlfUoniLMs67g6hBF8cYMLMYgQqR4RGfBHfllI3bEV1tOsHeutZn6LHgAaA9Cc8"
-          "\nIYbbmc1eZ97Vyo+pF5OKM5ii+2ARrvs9FOOEbZyKbgSSAAQ0ppa18t2VbpNVMUKT"
-          "\nI2/+bgmvAgMBAAECggEANDDr2/aZpNzAdGEUSkDM0tbIUQC+UK/ErBvnRRecPU+k"
-          "\nxNgpkSQcTz6e1MlLRY2/SeK0uYHrJy6C5VMVeSTKTOz6eYyCRhu2P1SkQG+1vbXN"
-          "\n+74NVe95fW/PfJghQqJT+x5+Tz4nhuwFo7MzHaP1BDfj9uX6q75j3RkpoQ9nwYia"
-          "\npkpG/HmwqlAXBUd0TA6Q8SrRUPH6UtGQKmuyzxVJ7S2EKK5xQi+ChMCQBYOJ9d9a"
-          "\nqJ66oeRs1XYBxwp9Q65LjNQitYiK+N9hUHTt815iIFXuWpK4MmGRa1cwhKW55Pah"
-          "\ncX9rFuMGjDGCIGZbUWObSExPiiIKGpUxtfHriV4D0QKBgQDf1d81OLaaa5Ke114S"
-          "\n8sXfL2QogUMCaPTuoSwuyihT4xro3yFmgGN++Uj23a2UsDKIkpgOU91iHkAnxqXr"
-          "\nYnwKhnTVo65giTfnSAyTfvQW/b7zNQ5iOD2Kp3miCebFwpHtaKQJwdAJI1aGMM2T"
-          "\nj0ahSeFcvazgXfLavxE/jyjAsQKBgQDQHyBjK66oet2AERyJTT1/HsLBNXk6+/ev"
-          "\nlF/InlRbREkEthNGZEsk+vm2zrYvmHaBcLa39KIRTCxE8sc4KdHNGGLU6FbCTCv7"
-          "\nbAvf3IfIk777RRaL4KFvPqLyubWpB3lqk8irGHAGrPdVYtTkITK0kux3lQ+C3d3R"
-          "\niOHr9xkIXwKBgQCNOh4ZMG1WRSU/f1dl0TOzu+0P+W7UKHDR13NPGlITi6lA4Pfr"
-          "\n+nnMdXDqAbgxpnJb5VJ3R8bYz4lfD2FEgOEOqwMwgJPXaPySuszkiydrEjLWtNUc"
-          "\nd6usvjpqWKD4iekUx/8oANdHzLoc9NHglnfT8A93Ol3HOr+t8PvrBGKMIQKBgQCd"
-          "\nQefHB4rB45Ta4BMf7C07kJK4Sx9/YkSVdxepD3nOPJqv5KRL3ByrpLhrWWZwMFPb"
-          "\nGr/13/NV/qi0sH24AmF1B6gmGCj2R3g0Uj/mt0wiUwFL+7g9mU5iMIIPxiNtxSgJ"
-          "\nUAGgxqZfZPK+oh8bAbq+lwX2lbtStzKU0UlkcyGHIQKBgE286MA0TE6rLViYeE1Q"
-          "\nqC7IIzkJSf/CdXXH4y4FIskPqd1x5uBA8+LQfy2pOedHi2QkhUgGf3xpLNZVK14O"
-          "\nKpg/tkTLig6paQfbobB6bWYbXS8OPnpYplLQ3pbeRtpB/SI6+5xekbylYHs1tex2"
-          "\nCVu1UVZWpUTbWOugIr4fHQdC\n-----END PRIVATE KEY-----\n",
-      "client_email":
-      "speak-clothes-vertex-realreal@unique-terminus-394917.iam.gserviceaccount.com",
-      "client_id":
-      "139320715526-a9mqtprt706shu2dkm6glk36g42k438a.apps.googleusercontent.com",
-      "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-      "token_uri": "https://oauth2.googleapis.com/token",
-      "auth_provider_x509_cert_url":
-      "https://www.googleapis.com/oauth2/v1/certs",
-      "client_x509_cert_url":
-      "https://www.googleapis.com/robot/v1/metadata/x509/speak-clothes-vertex-realreal"
-          "%40unique-terminus-394917.iam.gserviceaccount.com",
-      "universe_domain": "googleapis.com"
     });
 
     final scopes = ['https://www.googleapis.com/auth/cloud-platform'];
